@@ -3,8 +3,9 @@ import 'dart:developer';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:gemini_with_hive/api/api_service.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gemini_with_hive/core/constants.dart';
+import 'package:gemini_with_hive/hive/boxes.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart' as path;
 import 'package:uuid/uuid.dart';
@@ -33,7 +34,7 @@ class ChatProvider extends ChangeNotifier {
   String _currentChatId = '';
 
   // initialeze generative model
-  GenerativeModel? _generativeModel;
+  GenerativeModel? _model;
 
   // initialze text model
   GenerativeModel? _textModel;
@@ -53,7 +54,7 @@ class ChatProvider extends ChangeNotifier {
   int get currentIndex => _currentIndex;
   List<XFile>? get imagesFileList => _imagesFileList;
   String get currentChatId => _currentChatId;
-  GenerativeModel? get generativeModel => _generativeModel;
+  GenerativeModel? get generativeModel => _model;
   GenerativeModel? get textModel => _textModel;
   GenerativeModel? get visionModel => _visionModel;
   String get modelType => _modelType;
@@ -104,18 +105,42 @@ class ChatProvider extends ChangeNotifier {
     return newModel;
   }
 
+  String getApiKey() {
+    return dotenv.env['GEMINI_API_KEY']!;
+  }
+
   // function to set the model based on bool isTextOnly
   Future<void> setModel({required bool isTextOnly}) async {
     if (isTextOnly) {
-      _generativeModel = _textModel ??
+      _model = _textModel ??
           GenerativeModel(
-              model: setCurrentModel(newModel: 'gemini-pro'),
-              apiKey: ApiService.apiKey);
+              model: setCurrentModel(newModel: 'gemini-1.0-pro'),
+              apiKey: dotenv.env['GOOGLE_API_KEY']!,
+              generationConfig: GenerationConfig(
+                temperature: 0.4,
+                topK: 32,
+                topP: 1,
+                maxOutputTokens: 4096,
+              ),
+              safetySettings: [
+                SafetySetting(HarmCategory.harassment, HarmBlockThreshold.high),
+                SafetySetting(HarmCategory.hateSpeech, HarmBlockThreshold.high),
+              ]);
     } else {
-      _generativeModel = _visionModel ??
+      _model = _visionModel ??
           GenerativeModel(
-              model: setCurrentModel(newModel: 'gemini-pro-vision'),
-              apiKey: ApiService.apiKey);
+              model: setCurrentModel(newModel: 'gemini-1.5-flash'),
+              apiKey: dotenv.env['GOOGLE_API_KEY']!,
+              generationConfig: GenerationConfig(
+                temperature: 0.4,
+                topK: 32,
+                topP: 1,
+                maxOutputTokens: 4096,
+              ),
+              safetySettings: [
+                SafetySetting(HarmCategory.harassment, HarmBlockThreshold.high),
+                SafetySetting(HarmCategory.hateSpeech, HarmBlockThreshold.high),
+              ]);
     }
     notifyListeners();
   }
@@ -193,7 +218,7 @@ class ChatProvider extends ChangeNotifier {
   // get the imagesUrls
   List<String> getImagesUrls({required bool isTextOnly}) {
     List<String> imagesUrls = [];
-    if (imagesFileList?.isNotEmpty ?? true && !isTextOnly) {
+    if (imagesFileList != null && imagesFileList!.isNotEmpty && !isTextOnly) {
       for (var image in imagesFileList!) {
         imagesUrls.add(image.path);
       }
@@ -251,7 +276,7 @@ class ChatProvider extends ChangeNotifier {
   }
 
   // send message and wait for response
-  sendMessageAndWaitForRespons({
+  Future<void> sendMessageAndWaitForRespons({
     required String message,
     required String chatId,
     required bool isTextOnly,
@@ -259,7 +284,7 @@ class ChatProvider extends ChangeNotifier {
     required Message userMessages,
   }) async {
     //start the chat session - only send history is its text-only
-    final chatSession = _generativeModel!.startChat(
+    final chatSession = _model!.startChat(
       history: historyMessages.isEmpty || !isTextOnly ? null : historyMessages,
     );
 
@@ -292,14 +317,17 @@ class ChatProvider extends ChangeNotifier {
         _inChatMessages
             .firstWhere((element) =>
                 element.messageId == assistantMessage.messageId &&
-                element.role.name == Role.assistant.name)
+                element.role == Role.assistant)
             .message
             .write(event.text);
         notifyListeners();
       },
-      onDone: () {
+      onDone: () async {
         // save message to hive database
-
+        await saveMessageToDB(
+            chatID: chatId,
+            userMessage: userMessages,
+            assistantMessage: assistantMessage);
         // set loading to false
         setLoading = false;
       },
@@ -307,6 +335,39 @@ class ChatProvider extends ChangeNotifier {
       // set loading
       setLoading = false;
     });
+  }
+
+  // save messages to hive
+  Future<void> saveMessageToDB({
+    required String chatID,
+    required Message userMessage,
+    required Message assistantMessage,
+  }) async {
+    // open the messages box
+    final messagesBox =
+        await Hive.openBox('${Constants.chatMessagesBox}$chatID');
+
+    // save User messages
+    await messagesBox.put(userMessage.messageId, userMessage.toMap());
+
+    // save Assistant message
+    await messagesBox.put(assistantMessage.messageId, assistantMessage.toMap());
+
+    // save chat history with the same chatid
+    // if its already ther update it
+    // if not create a new
+    final chatHistoryBox = Boxes.getChatHistory();
+    final chatHistory = ChatHistory(
+      chatId: chatID,
+      prompt: userMessage.message.toString(),
+      response: assistantMessage.message.toString(),
+      imagesUrls: userMessage.imagesUrls,
+      timestamp: DateTime.now(),
+    );
+
+    await chatHistoryBox.put(chatID, chatHistory);
+    // close the message box
+    await messagesBox.clear();
   }
 
   // get content
@@ -319,16 +380,15 @@ class ChatProvider extends ChangeNotifier {
       return Content.text(message);
     } else {
       // generate image from text and image input
-      final imageFutures = _imagesFileList
-          ?.map((imageFile) => imageFile.readAsBytes())
-          .toList(growable: false);
+      final imageFutures =
+          _imagesFileList?.map((imageFile) => imageFile.readAsBytes()).toList();
       final imageByte = await Future.wait(imageFutures!);
       final prompt = TextPart(message);
       final imageParts = imageByte
-          .map((bytes) => DataPart('image.jpg', Uint8List.fromList(bytes)))
+          .map((bytes) => DataPart('image/jpeg', Uint8List.fromList(bytes)))
           .toList();
 
-      return Content.model([prompt, ...imageParts]);
+      return Content.multi([prompt, ...imageParts]);
     }
   }
 }

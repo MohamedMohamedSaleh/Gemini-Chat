@@ -44,8 +44,8 @@ class _ChatScreenState extends State<ChatScreen> {
         if (_scrollController.hasClients &&
             _scrollController.position.maxScrollExtent > 0.0) {
           _scrollController.animateTo(
-            _scrollController.position.maxScrollExtent - 3,
-            duration: const Duration(seconds: 1),
+            _scrollController.position.maxScrollExtent,
+            duration: const Duration(milliseconds: 1000),
             curve: Curves.easeInOut,
           );
         }
@@ -77,13 +77,13 @@ class _ChatScreenState extends State<ChatScreen> {
           child: Scaffold(
             appBar: AppBar(
               scrolledUnderElevation: .3,
-              title: const Text("Chat with Gemini"),
+              title: const Text("Gemini GPT"),
               centerTitle: true,
               backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
             ),
             body: SafeArea(
               child: Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.only(top: 8),
                 child: Column(
                   children: [
                     Expanded(
@@ -92,14 +92,14 @@ class _ChatScreenState extends State<ChatScreen> {
                               child: Text('No messages'),
                             )
                           : ListView.builder(
+                              padding: const EdgeInsets.only(bottom: 4),
                               controller: _scrollController,
                               itemCount: chatProvider.inChatMessages.length,
                               itemBuilder: (context, index) {
                                 final message =
                                     chatProvider.inChatMessages[index];
                                 return message.role == Role.user
-                                    ? MyMessageWidget(
-                                        message: message.message.toString())
+                                    ? MyMessageWidget(message: message)
                                     : AssistantMessageWidget(
                                         message: message.message.toString());
                               },
@@ -113,7 +113,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
               ),
             ),
-            floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+            // floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
             floatingActionButton: _showFab
                 ? Padding(
                     padding: const EdgeInsets.only(bottom: 65),
@@ -129,7 +129,7 @@ class _ChatScreenState extends State<ChatScreen> {
                             scrollToBottom();
                           },
                           child: const Icon(
-                            Icons.arrow_downward_rounded,
+                            Icons.keyboard_double_arrow_down_rounded,
                             color: Colors.white,
                             size: 26,
                           ),

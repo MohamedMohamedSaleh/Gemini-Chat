@@ -25,7 +25,7 @@ class AssistantMessageWidget extends StatelessWidget {
                     // maxHeight: 300,
                     maxWidth: message.isEmpty
                         ? 50
-                        : MediaQuery.of(context).size.width * .85,
+                        : MediaQuery.of(context).size.width * .80,
                   ),
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(

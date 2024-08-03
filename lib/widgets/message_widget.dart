@@ -1,12 +1,14 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
+import 'package:gemini_with_hive/models/messages.dart';
+import 'package:gemini_with_hive/widgets/preview_images_widget.dart';
 
 class MyMessageWidget extends StatelessWidget {
   const MyMessageWidget({
     super.key,
     required this.message,
   });
-  final String message;
+  final Message message;
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +18,7 @@ class MyMessageWidget extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           ListTile(
-            // key: index == 0 ? itemKey : null,
+            contentPadding: const EdgeInsets.only(right: 16),
             title: Align(
               alignment: Alignment.centerRight,
               child: Container(
@@ -41,9 +43,20 @@ class MyMessageWidget extends StatelessWidget {
                         ]),
                     color: Colors.grey.shade300,
                   ),
-                  child: Text(
-                    message,
-                    style: const TextStyle(color: Colors.white),
+                  child: Column(
+                    // mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    // crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      if (message.imagesUrls.isNotEmpty)
+                        PreviewImagesWidget(
+                          message: message,
+                        ),
+                      Text(
+                        message.message.toString(),
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                    ],
                   )),
             ),
           ),
