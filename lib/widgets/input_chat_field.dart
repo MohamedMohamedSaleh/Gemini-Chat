@@ -1,7 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:gemini_with_hive/core/helper.dart';
+import 'package:gemini_with_hive/core/helper_methods.dart';
 import 'package:gemini_with_hive/providers/chat_providers.dart';
 import 'package:gemini_with_hive/widgets/preview_images_widget.dart';
 import 'package:image_picker/image_picker.dart';
@@ -43,11 +43,11 @@ class _InputChatFieldState extends State<InputChatField> {
     required bool isTextOnly,
   }) async {
     try {
-      await chatProvider.sendMessage(message: message, isTextOnly: isTextOnly);
+      await chatProvider.sentMessage(message: message, isTextOnly: isTextOnly);
     } catch (ex) {
       log('error sending message: $ex');
     } finally {
-      widget.chatProvider.setImagesFileList(listImage: []);
+      widget.chatProvider.setImagesFileList(listValue: []);
       messageController.clear();
       textFieldFocus.unfocus();
     }
@@ -72,7 +72,7 @@ class _InputChatFieldState extends State<InputChatField> {
         maxWidth: 800,
       );
 
-      widget.chatProvider.setImagesFileList(listImage: image);
+      widget.chatProvider.setImagesFileList(listValue: image);
     } catch (ex) {
       log(ex.toString());
     }
@@ -112,7 +112,7 @@ class _InputChatFieldState extends State<InputChatField> {
                         negativeButtonAction: (value) {
                           if (value) {
                             widget.chatProvider
-                                .setImagesFileList(listImage: []);
+                                .setImagesFileList(listValue: []);
                           }
                         });
                   } else {
@@ -136,7 +136,7 @@ class _InputChatFieldState extends State<InputChatField> {
                   focusNode: textFieldFocus,
                   controller: messageController,
                   textInputAction: TextInputAction.send,
-                  onSubmitted: widget.chatProvider.setLoading? null: (value) {
+                  onSubmitted: widget.chatProvider.isLoading? null: (value) {
                     scrollToBottom();
                     if (value.isNotEmpty) {
                       sendChatMessage(
@@ -157,7 +157,7 @@ class _InputChatFieldState extends State<InputChatField> {
                 ),
               ),
               GestureDetector(
-                onTap:widget.chatProvider.setLoading? null: () {
+                onTap:widget.chatProvider.isLoading? null: () {
                   //send message
                   if (messageController.text.isNotEmpty) {
                     scrollToBottom();

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gemini_with_hive/hive/boxes.dart';
 import 'package:gemini_with_hive/hive/chat_history.dart';
 import 'package:gemini_with_hive/widgets/chat_history_widget.dart';
+import 'package:gemini_with_hive/widgets/empty_chat_history_widget.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 class ChatHistoryScreen extends StatefulWidget {
@@ -33,8 +34,10 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
         builder: (context, box, _) {
           final chatHistory = box.values.toList().cast<ChatHistory>();
           return chatHistory.isEmpty
-              ? const SizedBox()
+              ? const EmptyChatHistoryWidget()
               : ListView.builder(
+                  reverse: true,
+                  shrinkWrap: true,
                   itemCount: chatHistory.length,
                   itemBuilder: (context, index) {
                     final chat = chatHistory[index];

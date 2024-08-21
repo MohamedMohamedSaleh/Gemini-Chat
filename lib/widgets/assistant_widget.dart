@@ -1,6 +1,8 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:gemini_with_hive/providers/theme_provider.dart';
+import 'package:provider/provider.dart';
 
 class AssistantMessageWidget extends StatelessWidget {
   const AssistantMessageWidget({
@@ -36,13 +38,7 @@ class AssistantMessageWidget extends StatelessWidget {
                         bottomRight: Radius.circular(16),
                         topLeft: Radius.circular(16),
                         topRight: Radius.circular(16)),
-                    gradient: LinearGradient(
-                        begin: Alignment.topRight,
-                        end: Alignment.bottomLeft,
-                        colors: [
-                          Colors.grey.shade300.withOpacity(.5),
-                          Colors.grey.shade300.withOpacity(.8),
-                        ]),
+                    color: context.watch<ThemeProvider>().isDarkMode ? Colors.grey[800] : Colors.grey[200],
                   ),
                   child: message.isEmpty
                       ? const SizedBox(
@@ -55,7 +51,6 @@ class AssistantMessageWidget extends StatelessWidget {
                         )
                       : Text(
                           message,
-                          style: const TextStyle(color: Colors.black),
                         )),
             ),
           ),

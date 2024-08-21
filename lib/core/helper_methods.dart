@@ -11,7 +11,7 @@ void showMyAnimatedDialog({
     context: context,
     barrierDismissible: true,
     barrierLabel: '',
-    transitionDuration: const Duration(milliseconds: 500),
+    transitionDuration: const Duration(milliseconds: 300),
     pageBuilder: (context, animation, secondaryAnimation) {
       return Container();
     },

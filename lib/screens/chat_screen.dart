@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:gemini_with_hive/providers/chat_providers.dart';
 import 'package:gemini_with_hive/widgets/assistant_widget.dart';
 import 'package:gemini_with_hive/widgets/input_chat_field.dart';
@@ -18,9 +19,11 @@ class _ChatScreenState extends State<ChatScreen> {
   final ScrollController _scrollController = ScrollController();
   void listenToScrolll() {
     _scrollController.addListener(() {
+      print(_scrollController.position.maxScrollExtent);
+      print(_scrollController.offset);
       if (_scrollController.position.maxScrollExtent -
               _scrollController.offset >
-          500) {
+          300) {
         // User scrolled up
         if (!_showFab) {
           setState(() {
@@ -39,18 +42,18 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void scrollToBottom() {
-    return WidgetsBinding.instance.addPostFrameCallback(
-      (_) {
-        if (_scrollController.hasClients &&
-            _scrollController.position.maxScrollExtent > 0.0) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Future.delayed(Duration.zero, () {
+        // Ensure layout is complete
+        if (_scrollController.hasClients) {
           _scrollController.animateTo(
             _scrollController.position.maxScrollExtent,
             duration: const Duration(milliseconds: 1000),
             curve: Curves.easeInOut,
           );
         }
-      },
-    );
+      });
+    });
   }
 
   bool _showFab = false;
@@ -80,6 +83,29 @@ class _ChatScreenState extends State<ChatScreen> {
               title: const Text("Gemini GPT"),
               centerTitle: true,
               backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+              actions: [
+                if (chatProvider.inChatMessages.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: GestureDetector(
+                      onTap: () {
+                        // prepare new chat
+                        chatProvider.prepareChatRoom(
+                            isNewChat: true, chatID: '');
+                      },
+                      child: const CircleAvatar(
+                        radius: 18.0,
+                        child: Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Icon(
+                            Icons.add_comment_outlined,
+                            size: 20,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
             ),
             body: SafeArea(
               child: Padding(

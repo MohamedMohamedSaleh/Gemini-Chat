@@ -35,7 +35,7 @@ class Message {
       role: Role.values[map['role']],
       message: StringBuffer(map['message']),
       imagesUrls: List<String>.from(map['imagesUrls']),
-      timeSend: DateTime.parse(map['timeSend']),
+      timeSend: DateTime.parse(map['timeSend'].toString()),
     );
   }
 
