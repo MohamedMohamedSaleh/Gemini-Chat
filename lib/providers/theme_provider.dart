@@ -8,7 +8,6 @@ class ThemeProvider extends ChangeNotifier {
 
   bool get isDarkMode => _isDarkMode;
 
-
   // get the saved settings from box
   void getSavedTheme() {
     final settingsBox = Boxes.getSettings();
@@ -33,11 +32,10 @@ class ThemeProvider extends ChangeNotifier {
       // get the settings box
       final settingsBox = Boxes.getSettings();
       // save the settings
-      settingsBox.put(
-          0, Settings(isDarkTheme: value,));
+      settingsBox.putAt(0, Settings(isDarkTheme: value, shouldSpeak: false));
     }
-
     _isDarkMode = value;
+    print(_isDarkMode);
     notifyListeners();
   }
 }

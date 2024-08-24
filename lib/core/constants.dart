@@ -1,3 +1,4 @@
+
 class Constants{
   static const String chatHistoryBox = 'chat_history';
   static const String settingsBox = 'settings_box';

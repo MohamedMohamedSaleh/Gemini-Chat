@@ -337,10 +337,10 @@ class ChatProvider extends ChangeNotifier {
               element.role.name == Role.assistant.name)
           .message
           .write(event.text);
-      log('event: ${event.text}');
+      print('event: ${event.text}');
       notifyListeners();
     }, onDone: () async {
-      log('stream done');
+      print('stream done');
       // save message to hive db
       await saveMessagesToDB(
         chatID: chatId,
@@ -351,7 +351,7 @@ class ChatProvider extends ChangeNotifier {
       // set loading to false
       setLoading(value: false);
     }).onError((erro, stackTrace) {
-      log('error: $erro');
+      print('error: $erro');
       // set loading
       setLoading(value: false);
     });

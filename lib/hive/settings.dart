@@ -6,8 +6,13 @@ class Settings extends HiveObject {
   @HiveField(0)
   bool isDarkTheme = false;
 
+  @HiveField(1)
+  bool shouldSpeak = false;
+
   // constructor
+
   Settings({
     required this.isDarkTheme,
+    required this.shouldSpeak,
   });
 }

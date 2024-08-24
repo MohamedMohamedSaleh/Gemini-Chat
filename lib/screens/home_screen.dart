@@ -34,10 +34,12 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         bottomNavigationBar: BottomNavigationBar(
           elevation: 0.0,
+          selectedFontSize: 14,
+          selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
           selectedItemColor: Theme.of(context).colorScheme.primary,
           currentIndex: chatProvider.currentIndex,
           onTap: (index) {
-                       chatProvider.setCurrentIndex(newIndex: index);
+            chatProvider.setCurrentIndex(newIndex: index);
 
             chatProvider.pageController.jumpToPage(index);
           },
