@@ -2,12 +2,27 @@
 
 A modern and feature-rich chat application built using Flutter and Provider state management. Gemini Chat offers a seamless messaging experience with real-time notifications, customizable themes, and end-to-end encryption, and efficient local storage using the Hive package.
 
+<div style="display: flex; align-items: center;">
+
+<div style="flex: 1; text-align: center;">
+
 ## chat with Gemini by text only
+
 ![Demo with text only](https://github.com/user-attachments/assets/38117502-8a56-492c-9c93-227585c59a89) 
 
+</div>
+
+<div style="border-left: 5px solid Purple; height: 570px; margin: 0 20px;"></div>
+
+<div style="flex: 1; text-align: center;">
 
 ## Add image sharing with Gemini
+
 ![Demo with text and image](https://github.com/user-attachments/assets/13788f81-376f-48c3-83f6-ae600afb4354)
+
+</div>
+
+</div>
 
 
 
