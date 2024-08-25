@@ -91,6 +91,8 @@ Gemini Chat is designed to provide a smooth and efficient chatting experience fo
    - Quickly switch between active chats using intuitive swipe gestures or the chat list view.
 
 <img align="center" src="https://64.media.tumblr.com/446f36513b5f3077749d1044fae86cc1/tumblr_n05yiydwuF1shpedgo1_500.gif" width= 60% height=5px>
+
+
 ## 🔧 Technology Stack
 
 1. **Flutter**:
@@ -103,6 +105,7 @@ Gemini Chat is designed to provide a smooth and efficient chatting experience fo
    - Lightweight and fast NoSQL database for Flutter applications. Used for local storage of chat data, providing secure and reliable data management.
 
 <img align="center" src="https://64.media.tumblr.com/446f36513b5f3077749d1044fae86cc1/tumblr_n05yiydwuF1shpedgo1_500.gif" width= 60% height=5px>
+
 ## 📞 Contact
 
 - **Email**: [eng.mohamed.mo.saleh@gmail.com](mailto:youremail@example.com)
